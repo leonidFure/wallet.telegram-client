@@ -27,12 +27,6 @@ public class TelegramBotClientImpl extends TelegramBot implements TelegramBotCli
         }
     }
 
-    /**
-     * Асинхронный метод отправки сообщений в телеграм
-     *
-     * @param message объект отправки сообщение с указанными chatId и текстом сообщения
-     * @return Mono с результатом отправки сообщения в тг
-     */
     @Override
     public Mono<BaseResultDto> sendAsync(SendMessage message) {
         // создаем sink, который позволяет управлять созданием Mono потока
