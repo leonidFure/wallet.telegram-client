@@ -23,7 +23,7 @@ public class TransactionNotificationStrategy implements NotificationStrategy {
 
     private static final String MESSAGE_TEMPLATE = """
             Идентификатор транзакции: <b>%s</b>
-            
+                        
             Сумма транзакции: <b>%s</b>
                         
             Статус транзакции: <b>%s</b>
@@ -42,21 +42,23 @@ public class TransactionNotificationStrategy implements NotificationStrategy {
 
     @Override
     public Mono<BaseResultDto> send(TelegramMessageRequest request) {
-        var context = JsonUtils.readSafe(request.getContext(), TransactionNotificationResultDto.class)
-                .orElseThrow(() -> new IllegalStateException("reading context failed"));
+        return JsonUtils
+                .readSafe(request.getContext(), TransactionNotificationResultDto.class)
+                .map(this::createMessage)
+                .map(walletBotClient::sendAsync)
+                .orElse(Mono.create(sink -> sink.error(new IllegalStateException("reading context failed"))));
+    }
 
-        var messageText = MESSAGE_TEMPLATE.formatted(
+    private SendMessage createMessage(TransactionNotificationResultDto context) {
+        var message = MESSAGE_TEMPLATE.formatted(
                 context.getId(),
                 context.getAmount().toPlainString(),
                 context.getStatus(),
                 FORMATTER.format(context.getDatetime())
         );
-
-        var message = new SendMessage(chatId, messageText)
+        return new SendMessage(chatId, message)
                 .parseMode(ParseMode.HTML)
                 .disableNotification(true);
-
-        return walletBotClient.sendAsync(message);
     }
 
     @Override
