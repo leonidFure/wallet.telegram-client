@@ -4,11 +4,13 @@ import com.lgorev.telegramclient.domain.common.BaseResultDto;
 import com.lgorev.telegramclient.domain.telegram.TelegramMessageRequest;
 import com.lgorev.telegramclient.domain.telegram.TelegramNotificationType;
 import com.lgorev.telegramclient.domain.telegram.TransactionNotificationResultDto;
-import com.lgorev.telegramclient.service.telegram.client.WalletBotClient;
+import com.lgorev.telegramclient.service.telegram.client.TelegramBotClientImpl;
+import com.lgorev.telegramclient.service.telegram.client.base.TelegramBotClient;
 import com.lgorev.telegramclient.service.telegram.notifications.strategies.base.NotificationStrategy;
 import com.lgorev.telegramclient.utils.JsonUtils;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -28,12 +30,12 @@ public class TransactionNotificationStrategy implements NotificationStrategy {
             Дата время транзакции: <b>%s</b>
             """;
 
-    private final WalletBotClient walletBotClient;
+    private final TelegramBotClient walletBotClient;
 
     @Value("${telegram.bot.transactions.chat_id}")
     private String chatId;
 
-    public TransactionNotificationStrategy(WalletBotClient walletBotClient) {
+    public TransactionNotificationStrategy(@Qualifier("wallet-bot") TelegramBotClient walletBotClient) {
         this.walletBotClient = walletBotClient;
     }
 
@@ -51,7 +53,7 @@ public class TransactionNotificationStrategy implements NotificationStrategy {
         var message = new SendMessage(chatId, messageText)
                 .parseMode(ParseMode.HTML);
 
-        return walletBotClient.sendAsync(message, this.type());
+        return walletBotClient.sendAsync(message);
     }
 
     @Override
