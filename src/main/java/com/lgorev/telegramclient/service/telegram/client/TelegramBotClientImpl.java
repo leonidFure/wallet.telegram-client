@@ -19,8 +19,12 @@ public class TelegramBotClientImpl extends TelegramBot implements TelegramBotCli
 
     @Override
     public BaseResultDto sendSync(SendMessage message) {
-        // TODO: 19.03.2023 добавить реализацию синхронной отправки сообщений
-        return null;
+        var response = this.execute(message);
+        if (response.isOk()) {
+            return BaseResultDto.ok();
+        } else {
+            return BaseResultDto.fail("TELEGRAM_MESSAGE_SEND_ERROR", response.description());
+        }
     }
 
     /**
