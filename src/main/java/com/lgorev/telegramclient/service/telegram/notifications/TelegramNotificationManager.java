@@ -21,7 +21,7 @@ public class TelegramNotificationManager {
     private final Map<TelegramNotificationType, NotificationStrategy> strategyMap;
 
     public TelegramNotificationManager(List<NotificationStrategy> strategies) {
-        strategyMap = strategies.stream().collect(Collectors.toMap(
+        this.strategyMap = strategies.stream().collect(Collectors.toMap(
                 NotificationStrategy::type, Function.identity()
         ));
     }

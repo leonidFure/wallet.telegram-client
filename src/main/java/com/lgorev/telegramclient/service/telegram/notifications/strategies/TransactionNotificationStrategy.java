@@ -4,7 +4,6 @@ import com.lgorev.telegramclient.domain.common.BaseResultDto;
 import com.lgorev.telegramclient.domain.telegram.TelegramMessageRequest;
 import com.lgorev.telegramclient.domain.telegram.TelegramNotificationType;
 import com.lgorev.telegramclient.domain.telegram.TransactionNotificationResultDto;
-import com.lgorev.telegramclient.service.telegram.client.TelegramBotClientImpl;
 import com.lgorev.telegramclient.service.telegram.client.base.TelegramBotClient;
 import com.lgorev.telegramclient.service.telegram.notifications.strategies.base.NotificationStrategy;
 import com.lgorev.telegramclient.utils.JsonUtils;
@@ -24,6 +23,8 @@ public class TransactionNotificationStrategy implements NotificationStrategy {
 
     private static final String MESSAGE_TEMPLATE = """
             Идентификатор транзакции: <b>%s</b>
+            
+            Сумма транзакции: <b>%s</b>
                         
             Статус транзакции: <b>%s</b>
                         
@@ -46,12 +47,14 @@ public class TransactionNotificationStrategy implements NotificationStrategy {
 
         var messageText = MESSAGE_TEMPLATE.formatted(
                 context.getId(),
+                context.getAmount().toPlainString(),
                 context.getStatus(),
                 FORMATTER.format(context.getDatetime())
         );
 
         var message = new SendMessage(chatId, messageText)
-                .parseMode(ParseMode.HTML);
+                .parseMode(ParseMode.HTML)
+                .disableNotification(true);
 
         return walletBotClient.sendAsync(message);
     }
